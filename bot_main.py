@@ -1,65 +1,37 @@
 import discord
 from discord import app_commands
+from utils.config_utils import get_config_values
 from utils.discord_utils import connect_to_discord
-from utils.config_util import load_config
 from cogs.basic_commands import register_commands
-
-##################################################
-##### Initialization
-##################################################
-
-##### Config
-config = configparser.ConfigParser(interpolation=None)
-config.read('config.txt')
-DISCORD_TOKEN = config['DISCORD']['TOKEN']
-MY_GUILD = discord.Object(config['DISCORD']['GUILD_ID'])
+from events.core_events import handle_on_ready
 
 
-##### Discord
+# Discord Client Initialization
 class MyClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-
-    async def setup_hook(self):
-        self.tree.copy_global_to(guild=MY_GUILD)
-        await self.tree.sync(guild=MY_GUILD)
+        self.DISCORD_TOKEN, self.MY_GUILD = get_config_values('config.txt')
 
 
+# Initialize client
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 client = MyClient(intents=intents)
 
-##################################################
-##### LOGIC
-##################################################
+# Register core events
+handle_on_ready(client)
 
 
-def send_ping_message(message="Pong!"):
-    # Some logic here
-    return message
+# Register commands
+def register_all_commands(client):
+    register_commands(client)
+    # Add more command modules here as you create them
 
 
-##################################################
-##### COMMANDS
-##################################################
+# Register all commands
+register_all_commands(client)
 
-@client.tree.command()
-async def ping(interaction: discord.Interaction, message: str):
-    """Let's see if the bot is alive!"""
-    await interaction.response.defer(ephemeral=True)
-    await interaction.followup.send(content=send_ping_message(message))
-
-
-##################################################
-##### EVENTS
-##################################################
-
-@client.event
-async def on_ready():
-    print(f'Logged in as {client.user} (ID: {client.user.id})')
-    print('------')
-
-
-connect_to_discord(client, DISCORD_TOKEN)
+# Connect to Discord
+connect_to_discord(client, client.DISCORD_TOKEN)
