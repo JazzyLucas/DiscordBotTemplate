@@ -2,11 +2,13 @@ import os
 import configparser
 from typing import Tuple
 
+
 def get_config(config_file_path: str) -> configparser.ConfigParser:
     """Load and return the configuration settings."""
     config = configparser.ConfigParser(interpolation=None)
     config.read(config_file_path)
     return config
+
 
 def get_config_values(config_file_path: str) -> Tuple[str, str]:
     """Load and return Discord token and guild ID, with environment variable fallbacks."""

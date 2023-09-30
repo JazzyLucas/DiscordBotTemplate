@@ -8,8 +8,8 @@ from events.core_events import handle_on_ready
 
 # Discord Client Initialization
 class MyClient(discord.Client):
-    def __init__(self, *, intents: discord.Intents):
-        super().__init__(intents=intents)
+    def __init__(self, *, discord_intents: discord.Intents):
+        super().__init__(intents=discord_intents)
         self.tree = app_commands.CommandTree(self)
         self.DISCORD_TOKEN, self.MY_GUILD = get_config_values('config.txt')
 
@@ -18,15 +18,15 @@ class MyClient(discord.Client):
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-client = MyClient(intents=intents)
+client = MyClient(discord_intents=intents)
 
 # Register core events
 handle_on_ready(client)
 
 
 # Register commands
-def register_all_commands(client):
-    register_commands(client)
+def register_all_commands(discord_client):
+    register_commands(discord_client)
     # Add more command modules here as you create them
 
 
